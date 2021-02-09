@@ -61,7 +61,7 @@ export default function Influencers() {
 
   const toggleFollow = useCallback(id => async () => {
     if(!user) {
-      return
+      return <div />
     }
     setBusy(true)
     const existing = followings.find(inf => inf.id === id)

@@ -41,11 +41,13 @@ export default function Register() {
 
   const onSubmit = async (formData) => {
     if(data.isLogin) {
+      console.log('location',location)
       setData(prevData => ({...prevData, loading: true}))
       const [data,error] = await userApi.login(formData.username,formData.password)
       setData(prevData => ({...prevData, loading: false}))
       if(!error.length) {
         setUser(data)
+        console.log('uslo')
         history.push(location.state && location.state.from ?  location.state.from : '')
         return
       } else {

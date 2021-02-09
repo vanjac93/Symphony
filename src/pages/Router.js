@@ -1,5 +1,5 @@
 import React, { Component, useCallback, useEffect, useState } from 'react'
-import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Redirect, Switch, useLocation } from 'react-router-dom'
 import { Routes } from '~/Constants'
 import ErrorPage from './ErrorPage'
 import Influencers from './Influencers'
@@ -10,22 +10,22 @@ import usersApi from '~/services/user'
 import { FOLLOWINGS_LIMIT } from '../Constants'
 
 function PrivateRoute({ component, authed, ...rest }) {
+  const location = useLocation()
+  const finalComponent = authed ? component : <Redirect to={{
+    pathname: '/login',
+    state: { from: location.pathname }
+  }} />
+
+  console.log('finalComponent',finalComponent)
   return (
     <Route
       {...rest}
-      render={(props) => {
-        return authed === true
-          ? <Component {...props} />
-          : <Redirect to={{
-            pathname: '/login',
-            state: { from: props.location }
-          }} />
-      }}
+      component={finalComponent}
     />
   )
 }
 
-export default function Router() {
+const RouterComponent = () => {
   const persistedUser = localStorage.getItem('user')
   const [user, setUser] = useState(persistedUser ? JSON.parse(persistedUser) : null )
   const hasUser = Boolean(user)
@@ -58,19 +58,28 @@ export default function Router() {
 
   return (
     <UserContext.Provider value={{user, setUser: handleSetUser}}>
-      <BrowserRouter>
+      <Router>
         <Switch>
           <Route exact path={[Routes.REGISTER,Routes.LOGIN]} component={Register} />
-          {user &&
-          <Route exact path={[Routes.NEWS, Routes.HOME]} authed={hasUser}
-            render={props => user.isInfluencer ?  <News {...props} /> : hasSelectedInfluencers ?  <News {...props} /> :
-              <Redirect to={Routes.INFLUENCERS_LIST} from={Routes.INFLUENCERS_LIST} />
-            }  />}
-          <Route exact path={Routes.INFLUENCERS_LIST} authed={hasUser} component={Influencers}  />
+          <Route exact path={Routes.HOME} authed={hasUser}
+            render={props => hasUser ? user.isInfluencer ?  <News {...props} /> : hasSelectedInfluencers ?  <News {...props} /> :
+              <Redirect to={{pathname: Routes.INFLUENCERS_LIST, state: {from: Routes.HOME}} } />
+              :
+              <Redirect to={{pathname: Routes.INFLUENCERS_LIST, state: {from: Routes.HOME}} } />
+            }
+          />
+          <Route exact path={Routes.INFLUENCERS_LIST} authed={hasUser}
+            render={props => hasUser ? user.isInfluencer ?  <News {...props} /> : hasSelectedInfluencers ?  <News {...props} /> :
+              <Redirect to={{pathname: Routes.LOGIN, state: {from: Routes.HOME}} } />
+              :
+              <Redirect to={{pathname: Routes.LOGIN, state: {from: Routes.HOME}} } />
+            }  />
           <Route exact path={Routes.ERROR_PAGE} authed={hasUser} component={ErrorPage}  />
           <Route exact path="*" render={() => <Redirect to={Routes.ERROR_PAGE} />} />
         </Switch>
-      </BrowserRouter>
+      </Router>
     </UserContext.Provider>
   )
 }
+
+export default RouterComponent
