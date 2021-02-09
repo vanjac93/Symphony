@@ -1,19 +1,15 @@
-import './App.css'
+import React, { Suspense } from 'react'
+import Router from './pages/Router'
+import 'semantic-ui-css/semantic.min.css'
+import { ThemeProvider } from 'styled-components'
+import theme from '../public/theme'
 
-import React, {Component} from 'react'
-
-class App extends Component {
-  render() {
-    return <div className="App">
-      <div className="App-heading App-flex">
-        <h2>Welcome to <span className="App-react">React</span></h2>
-      </div>
-      <div className="App-instructions App-flex">
-        <img className="App-logo" src={require('./react.svg')}/>
-        <p>Edit <code>src/App.js</code> and save to hot reload your changes.</p>
-      </div>
-    </div>
-  }
+export default function App() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ThemeProvider theme={theme}>
+        <Router />
+      </ThemeProvider>
+    </Suspense>
+  )
 }
-
-export default App
