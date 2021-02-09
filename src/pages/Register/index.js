@@ -56,8 +56,9 @@ export default function Register() {
     if(data.isSignedUp) {
       setData(prevData => ({...prevData, loading: true}))
       const [data,error] = await userApi.login(formData.username, formData.password)
+      console.log('signed up', data)
       if(!error.length) {
-        setUser(data.user)
+        setUser(data)
         if(data.user.isInfluencer) {
           history.push(Routes.NEWS)
         } else {

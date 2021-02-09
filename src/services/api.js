@@ -19,11 +19,10 @@ export async function request(url, options = {}){
     headers,
     ...options })
   let dat
-  console.log('res', res)
   try {
     dat = await res.json()
   } catch (error) {
-    console.log(error)
+    // console.log(error)
   }
   // Handle errors
   if (!res.ok) {
