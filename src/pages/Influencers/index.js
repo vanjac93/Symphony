@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useContext, useEffect, useState } from 'react'
-import {HeaderDiv, InfluencerCard, Container, ListContainer} from './InfluencersList.styled'
+import {HeaderDiv, InfluencerCard, Container, ListContainer} from './index.styled'
 import UserContext from '~/pages/common/UserContext'
 import followingsApi from '~/services/followings'
 import influencersApi from '~/services/influencers'

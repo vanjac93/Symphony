@@ -11,16 +11,10 @@ import { FOLLOWINGS_LIMIT } from '../Constants'
 
 function PrivateRoute({ component, authed, ...rest }) {
   const location = useLocation()
-  const finalComponent = authed ? component : <Redirect to={{
-    pathname: '/login',
-    state: { from: location.pathname }
-  }} />
-
-  console.log('finalComponent',finalComponent)
   return (
     <Route
       {...rest}
-      component={finalComponent}
+      component={component}
     />
   )
 }
@@ -32,8 +26,12 @@ const RouterComponent = () => {
   const [hasSelectedInfluencers, setHasSelectedInfluencers] = useState(user ? user.hasSelectedFollowers : false)
 
   useEffect(() => {
-    if(user && !user.isInfluencer) {
-      setHasSelectedInfluencers(user.numberOfFollowings>=FOLLOWINGS_LIMIT)
+    if(user) {
+      if(user.isInfluencer) {
+        setHasSelectedInfluencers(true)
+      } else {
+        setHasSelectedInfluencers(user.numberOfFollowings>FOLLOWINGS_LIMIT)
+      }
     }
   }, [user])
 
@@ -60,20 +58,9 @@ const RouterComponent = () => {
     <UserContext.Provider value={{user, setUser: handleSetUser}}>
       <Router>
         <Switch>
-          <Route exact path={[Routes.REGISTER,Routes.LOGIN]} component={Register} />
-          <Route exact path={Routes.HOME} authed={hasUser}
-            render={props => hasUser ? user.isInfluencer ?  <News {...props} /> : hasSelectedInfluencers ?  <News {...props} /> :
-              <Redirect to={{pathname: Routes.INFLUENCERS_LIST, state: {from: Routes.HOME}} } />
-              :
-              <Redirect to={{pathname: Routes.INFLUENCERS_LIST, state: {from: Routes.HOME}} } />
-            }
-          />
-          <Route exact path={Routes.INFLUENCERS_LIST} authed={hasUser}
-            render={props => hasUser ? user.isInfluencer ?  <News {...props} /> : hasSelectedInfluencers ?  <News {...props} /> :
-              <Redirect to={{pathname: Routes.LOGIN, state: {from: Routes.HOME}} } />
-              :
-              <Redirect to={{pathname: Routes.LOGIN, state: {from: Routes.HOME}} } />
-            }  />
+          <Route exact path={[Routes.REGISTER,Routes.LOGIN]} component={props => hasUser ? <Register {...props} /> : <Register {...props}/>} />
+          <PrivateRoute exact path={Routes.HOME} authed={hasUser} component={News} />
+          <PrivateRoute exact path={Routes.INFLUENCERS_LIST} authed={hasUser} component={Influencers} />
           <Route exact path={Routes.ERROR_PAGE} authed={hasUser} component={ErrorPage}  />
           <Route exact path="*" render={() => <Redirect to={Routes.ERROR_PAGE} />} />
         </Switch>
